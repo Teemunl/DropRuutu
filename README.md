@@ -1,5 +1,9 @@
 # DropRuutu
 
+<p align="center">
+  <img src="images/dropruutu.png" alt="DropRuutu logo" width="160">
+</p>
+
 DropRuutu is a Go web file server for uploading, browsing, moving, and downloading files from a browser. Its web interface and assets are embedded in the executable.
 
 ## Build and run
@@ -62,7 +66,3 @@ $env:UPLOAD_DIR = "D:\SharedFiles"
 ```powershell
 go test ./...
 ```
-
-<p align="center">
-  <img src="images/dropruutu.png" alt="DropRuutu logo" width="160">
-</p>
