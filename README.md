@@ -6,9 +6,14 @@ DropRuutu is a Go web file server for uploading, browsing, moving, and downloadi
 
 Requires Go 1.22 or newer.
 
-```powershell
+```Windows
 go build -o DropRuutu.exe .
 .\DropRuutu.exe
+```
+
+```Linux
+go build -o dropruutu .
+./dropruutu
 ```
 
 Open [http://localhost:3000](http://localhost:3000). To connect from a phone or another device on your local network, scan the QR code shown in the terminal or open the server's LAN address.
