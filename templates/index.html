@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DropRuutu</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/style.css?v=20261010_v5">
+    <style>
+/* Critical Inlined Stylesheet */
+:root {
+    --fs-bg: #000000;
+    --fs-blue: #0078d7;
+    --fs-cyan: #00a4ef;
+    --fs-magenta: #d80073;
+    --fs-green: #107c10;
+    --fs-lime: #60a917;
+    --fs-mango: #f09609;
+    --fs-red: #e51400;
+    --fs-purple: #6a00ff;
+    --fs-teal: #00aba9;
+    --fs-yellow: #e3c800;
+    --fs-text: #ffffff;
+    --fs-text-dim: #999999;
+}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    border-radius: 0 !important;
+}
+body, html {
+    font-family: 'Segoe UI', 'Segoe WP', system-ui, -apple-system, BlinkMacSystemFont, sans-serif !important;
+    background: #000000 !important;
+    color: #ffffff !important;
+    min-height: 100vh !important;
+    overflow-x: hidden;
+}
+#fs-shell {
+    min-height: 100vh;
+    padding: 1.5rem 1.5rem 100px 1.5rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+.fs-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #1a1a1a;
+}
+.fs-app-brand {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--fs-cyan);
+    text-transform: uppercase;
+    margin-bottom: 0.2rem;
+}
+.fs-header-main {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.fs-pivot-title {
+    font-size: 3.8rem;
+    font-weight: 200;
+    letter-spacing: -2px;
+    line-height: 1;
+    color: #ffffff;
+    text-transform: lowercase;
+    margin: 0;
+}
+.fs-pivot-title a {
+    color: #ffffff;
+    text-decoration: none;
+}
+.fs-path-crumb {
+    font-size: 1.15rem;
+    font-weight: 300;
+    color: var(--fs-text-dim);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 0.75rem;
+}
+.fs-path-crumb a {
+    color: var(--fs-cyan);
+    text-decoration: none;
+}
+.fs-path-crumb a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+.fs-path-crumb .crumb-sep {
+    color: #444444;
+}
+.fs-path-crumb .crumb-active {
+    color: #ffffff;
+    font-weight: 400;
+}
+.fs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+}
+.fs-tile {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    min-height: 175px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: #ffffff;
+    cursor: pointer;
+    user-select: none;
+    overflow: hidden;
+    transition: outline 0.15s ease, filter 0.15s ease;
+}
+.fs-tile-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
+}
+.fs-tile-icon {
+    font-size: 2.8rem;
+    line-height: 1;
+    color: #ffffff;
+}
+.fs-tile-actions {
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+.fs-tile:hover .fs-tile-actions {
+    opacity: 1;
+}
+@media (hover: none) {
+    .fs-tile-actions {
+        opacity: 0.9;
+    }
+}
+.fs-action-btn {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: #ffffff;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: none;
+}
+.fs-action-btn:hover {
+    background: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
+}
+.fs-action-btn.btn-del:hover {
+    background: var(--fs-red);
+    color: #ffffff;
+    border-color: var(--fs-red);
+}
+.fs-tile-bottom {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    width: 100%;
+}
+.fs-tile-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.2;
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    text-transform: lowercase;
+}
+.fs-tile-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.85;
+    white-space: nowrap;
+    margin-left: 6px;
+}
+.fs-folder-tile {
+    background: var(--fs-cyan);
+}
+.fs-folder-tile:hover {
+    filter: brightness(1.08);
+}
+.fs-action-tile-upload {
+    background: var(--fs-blue);
+}
+.fs-action-tile-folder {
+    background: var(--fs-green);
+}
+.fs-action-tile-zip {
+    background: var(--fs-purple);
+}
+.fs-action-tile-qr {
+    background: var(--fs-mango);
+}
+.fs-file-image {
+    background: var(--fs-mango);
+}
+.fs-file-video {
+    background: var(--fs-red);
+}
+.fs-file-audio {
+    background: var(--fs-magenta);
+}
+.fs-file-code {
+    background: var(--fs-teal);
+}
+.fs-file-doc {
+    background: var(--fs-blue);
+}
+.fs-file-pdf {
+    background: #b91d47;
+}
+.fs-file-archive {
+    background: var(--fs-purple);
+}
+.fs-file-generic {
+    background: #2d2d30;
+    border-bottom: 6px solid var(--fs-cyan);
+}
+@media (min-width: 600px) {
+    .fs-tile-wide {
+        grid-column: span 2;
+        aspect-ratio: 2 / 1;
+    }
+}
+.fs-tile.dragging {
+    opacity: 0.35 !important;
+    transform: scale(0.92) !important;
+}
+.fs-folder-tile.drop-target-active {
+    outline: 5px solid #ffffff !important;
+    background: var(--fs-lime) !important;
+    transform: scale(1.05) !important;
+    z-index: 10;
+}
+.fs-appbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 72px;
+    background: #111111;
+    border-top: 2px solid #222222;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+    box-shadow: 0 -6px 30px rgba(0, 0, 0, 0.95);
+}
+.fs-appbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 36px;
+    width: 100%;
+    max-width: 650px;
+}
+.fs-appbar-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.1s ease;
+}
+.fs-appbar-btn:active {
+    transform: scale(0.92);
+}
+.fs-appbar-circle {
+    width: 42px;
+    height: 42px;
+    border-radius: 50% !important;
+    border: 2px solid #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    color: #ffffff;
+    transition: all 0.15s ease;
+}
+.fs-appbar-btn:hover .fs-appbar-circle {
+    background: #ffffff;
+    color: #000000;
+}
+.fs-appbar-label {
+    font-size: 0.65rem;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+    text-transform: lowercase;
+    color: #aaaaaa;
+}
+.modal-content {
+    background: #111111 !important;
+    border: 3px solid var(--fs-cyan) !important;
+    color: #ffffff !important;
+}
+.modal-header {
+    border-bottom: 1px solid #222222 !important;
+    padding: 1.5rem !important;
+}
+.modal-title {
+    font-size: 1.8rem !important;
+    font-weight: 200 !important;
+    text-transform: lowercase !important;
+}
+.modal-footer {
+    border-top: 1px solid #222222 !important;
+    padding: 1.25rem !important;
+}
+.form-control {
+    background: #1c1c1c !important;
+    border: 2px solid #444444 !important;
+    color: #ffffff !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 1.1rem !important;
+}
+.form-control:focus {
+    background: #252525 !important;
+    border-color: var(--fs-cyan) !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
+}
+.btn-fs-primary {
+    background: var(--fs-cyan) !important;
+    border: 2px solid var(--fs-cyan) !important;
+    color: #ffffff !important;
+    padding: 0.6rem 1.75rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    font-size: 0.85rem !important;
+    letter-spacing: 1px !important;
+}
+.btn-fs-secondary {
+    background: transparent !important;
+    border: 2px solid #555555 !important;
+    color: #ffffff !important;
+    padding: 0.6rem 1.75rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    font-size: 0.85rem !important;
+    letter-spacing: 1px !important;
+}
+.btn-fs-secondary:hover {
+    border-color: #ffffff !important;
+}
+.fs-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 5rem 1rem;
+    color: var(--fs-text-dim);
+}
+.fs-empty i {
+    font-size: 4.5rem;
+    color: #333333;
+    margin-bottom: 1rem;
+}
+.fs-empty h3 {
+    font-size: 2.2rem;
+    font-weight: 200;
+    color: #ffffff;
+    text-transform: lowercase;
+}
+@media (max-width: 576px) {
+    #fs-shell {
+        padding: 1rem 1rem 90px 1rem;
+    }
+    .fs-pivot-title {
+        font-size: 2.8rem;
+    }
+    .fs-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    .fs-tile {
+        min-height: 140px;
+        padding: 12px;
+    }
+    .fs-tile-icon {
+        font-size: 2.2rem;
+    }
+    .fs-tile-title {
+        font-size: 1rem;
+    }
+    .fs-appbar-inner {
+        gap: 16px;
+    }
+}
+    </style>
+</head>
+<body>
+    <div id="fs-shell">
+        <!-- metro Start Header -->
+        <header class="fs-header">
+            <div class="fs-app-brand">DROPRUUTU</div>
+            <div class="fs-header-main">
+                <h1 class="fs-pivot-title" id="fs-title">
+                    <a href="#" onclick="loadDirectory('')">start</a>
+                </h1>
+                <div class="d-flex align-items-center gap-2">
+                    <button class="fs-action-btn" onclick="showQRModal()" title="Connect Phone (QR Code)">
+                        <i class="bi bi-qr-code"></i>
+                    </button>
+                    <button class="fs-action-btn" onclick="showCreateFolderModal()" title="New Folder">
+                        <i class="bi bi-folder-plus"></i>
+                    </button>
+                    <button class="fs-action-btn" onclick="document.getElementById('hidden-file-input').click()" title="Upload">
+                        <i class="bi bi-cloud-arrow-up"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Breadcrumbs -->
+            <div class="fs-path-crumb" id="breadcrumb">
+                <a href="#" onclick="navigateToPath('')" ondragover="handleFolderDragOver(event)" ondragleave="handleFolderDragLeave(event)" ondrop="handleFolderDrop(event, '')">start</a>
+            </div>
+        </header>
+
+        <!-- Hidden Upload Form -->
+        <form id="upload-form" style="display: none;">
+            <input type="hidden" name="folder" id="current-folder" value="">
+            <input type="file" id="hidden-file-input" name="file" multiple onchange="handleFileInputChange(event)">
+        </form>
+
+        <!-- metro Live Tiles Grid -->
+        <div id="file-list" class="fs-grid">
+            <!-- Loaded dynamically -->
+        </div>
+    </div>
+
+    <!-- Windows Phone Application Bar (Docked Bottom Bar) -->
+    <nav class="fs-appbar">
+        <div class="fs-appbar-inner">
+            <button class="fs-appbar-btn" onclick="document.getElementById('hidden-file-input').click()" title="Upload Files">
+                <div class="fs-appbar-circle"><i class="bi bi-arrow-up"></i></div>
+                <span class="fs-appbar-label">upload</span>
+            </button>
+            <button class="fs-appbar-btn" onclick="showCreateFolderModal()" title="New Folder">
+                <div class="fs-appbar-circle"><i class="bi bi-folder-plus"></i></div>
+                <span class="fs-appbar-label">new folder</span>
+            </button>
+            <button class="fs-appbar-btn" id="appbar-download-btn" onclick="downloadCurrentFolder()" title="Download ZIP" style="display: none;">
+                <div class="fs-appbar-circle"><i class="bi bi-download"></i></div>
+                <span class="fs-appbar-label">download zip</span>
+            </button>
+            <button class="fs-appbar-btn" onclick="showQRModal()" title="Connect Phone">
+                <div class="fs-appbar-circle"><i class="bi bi-qr-code"></i></div>
+                <span class="fs-appbar-label">connect</span>
+            </button>
+            <button class="fs-appbar-btn" onclick="loadDirectory('')" title="Root">
+                <div class="fs-appbar-circle"><i class="bi bi-house"></i></div>
+                <span class="fs-appbar-label">root</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Create Folder Modal -->
+    <div class="modal fade" id="createFolderModal" tabindex="-1" aria-labelledby="createFolderModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createFolderModalLabel">new folder</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createFolderForm" onsubmit="handleCreateFolder(event)">
+                        <div class="mb-3">
+                            <label for="folderName" class="form-label text-secondary small text-uppercase">folder name</label>
+                            <input type="text" class="form-control" id="folderName" name="name" placeholder="enter name..." required autocomplete="off">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-fs-secondary" data-bs-dismiss="modal">cancel</button>
+                    <button type="submit" form="createFolderForm" class="btn btn-fs-primary">create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Connect Phone QR Code Modal -->
+    <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="qrModalLabel">connect phone</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-4">
+                    <div class="text-secondary small text-uppercase mb-3">Scan with your phone or tablet camera</div>
+                    <div class="d-inline-block p-2 bg-white mb-3" style="box-shadow: 0 0 20px rgba(0,0,0,0.5);">
+                        <img id="qr-modal-img" src="/api/qr" alt="QR Code" style="width: 240px; height: 240px; display: block;">
+                    </div>
+                    <div class="mb-3">
+                        <div class="small text-secondary mb-1">Direct Wi-Fi link:</div>
+                        <a id="qr-modal-link" href="#" target="_blank" class="fw-bold" style="color: var(--fs-cyan); word-break: break-all; font-size: 1.1rem; text-decoration: none;">loading...</a>
+                    </div>
+                    <button type="button" id="qr-copy-btn" class="btn btn-fs-primary w-100" onclick="copyQRLink()">copy link</button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-fs-secondary" data-bs-dismiss="modal">close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentPath = '';
+        let pathHistory = [''];
+        let draggedItem = null;
+
+        window.addEventListener('DOMContentLoaded', event => {
+            loadDirectory('');
+            setupGlobalDragDrop();
+        });
+
+        function setupGlobalDragDrop() {
+            window.addEventListener('dragover', e => {
+                e.preventDefault();
+            });
+
+            window.addEventListener('drop', e => {
+                // If dropped directly onto background shell instead of a folder tile
+                if (e.target.closest('.fs-folder-tile')) return;
+                e.preventDefault();
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    uploadFilesBatch(e.dataTransfer.files, currentPath);
+                }
+            });
+        }
+
+        function getFileTheme(name) {
+            const parts = name.split('.');
+            const ext = parts.length > 1 ? parts.pop().toLowerCase() : '';
+
+            if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'].includes(ext)) {
+                return { cls: 'fs-file-image', icon: 'bi-image', ext: ext.toUpperCase() }; // Mango
+            }
+            if (['mp4', 'mkv', 'avi', 'mov', 'webm'].includes(ext)) {
+                return { cls: 'fs-file-video', icon: 'bi-film', ext: ext.toUpperCase() }; // Red
+            }
+            if (['mp3', 'wav', 'flac', 'aac', 'ogg'].includes(ext)) {
+                return { cls: 'fs-file-audio', icon: 'bi-music-note-beamed', ext: ext.toUpperCase() }; // Magenta
+            }
+            if (['zip', 'rar', '7z', 'tar', 'gz'].includes(ext)) {
+                return { cls: 'fs-file-archive', icon: 'bi-file-earmark-zip', ext: ext.toUpperCase() }; // Purple
+            }
+            if (['pdf'].includes(ext)) {
+                return { cls: 'fs-file-pdf', icon: 'bi-file-earmark-pdf', ext: 'PDF' }; // Dark Red
+            }
+            if (['doc', 'docx', 'txt', 'rtf', 'odt', 'md'].includes(ext)) {
+                return { cls: 'fs-file-doc', icon: 'bi-file-earmark-text', ext: ext.toUpperCase() }; // Blue
+            }
+            if (['js', 'go', 'html', 'css', 'json', 'py', 'ts', 'rs', 'c', 'cpp'].includes(ext)) {
+                return { cls: 'fs-file-code', icon: 'bi-file-earmark-code', ext: ext.toUpperCase() }; // Teal
+            }
+            return { cls: 'fs-file-generic', icon: 'bi-file-earmark', ext: ext.toUpperCase() || 'FILE' };
+        }
+
+        function loadDirectory(path) {
+            currentPath = path;
+            updateBreadcrumb(path);
+            updateTitle(path);
+            
+            // Toggle download ZIP button in App Bar
+            const appbarDownloadBtn = document.getElementById('appbar-download-btn');
+            if (appbarDownloadBtn) {
+                appbarDownloadBtn.style.display = path ? 'flex' : 'none';
+            }
+
+            document.getElementById('current-folder').value = path || '';
+
+            // Show loading
+            document.getElementById('file-list').innerHTML = `
+                <div class="fs-empty">
+                    <div class="spinner-border text-light" role="status">
+                        <span class="visually-hidden">loading...</span>
+                    </div>
+                    <div class="mt-3 text-secondary">loading...</div>
+                </div>
+            `;
+
+            fetch(`/api/folder?path=${encodeURIComponent(path)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        showError(data.error);
+                    } else {
+                        displayFiles(data.items, path);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading directory:', error);
+                    showError('Failed to load directory');
+                });
+        }
+
+        function displayFiles(items, path) {
+            const fileList = document.getElementById('file-list');
+            let html = '';
+
+            // 1. Permanent metro Start Action Tiles
+            // Upload Tile (Wide)
+            html += `
+                <div class="fs-tile fs-tile-wide fs-action-tile-upload" 
+                     onclick="document.getElementById('hidden-file-input').click()"
+                     title="Tap to upload files">
+                    <div class="fs-tile-top">
+                        <i class="bi bi-cloud-arrow-up fs-tile-icon"></i>
+                    </div>
+                    <div class="fs-tile-bottom">
+                        <div class="fs-tile-title">upload files</div>
+                        <span class="fs-tile-badge">action</span>
+                    </div>
+                </div>
+            `;
+
+            // New Folder Tile (Square)
+            html += `
+                <div class="fs-tile fs-action-tile-folder" 
+                     onclick="showCreateFolderModal()"
+                     title="Create new folder">
+                    <div class="fs-tile-top">
+                        <i class="bi bi-folder-plus fs-tile-icon"></i>
+                    </div>
+                    <div class="fs-tile-bottom">
+                        <div class="fs-tile-title">new folder</div>
+                        <span class="fs-tile-badge">action</span>
+                    </div>
+                </div>
+            `;
+
+            // Connect Phone QR Tile (Square)
+            html += `
+                <div class="fs-tile fs-action-tile-qr" 
+                     onclick="showQRModal()"
+                     title="Connect Phone via QR Code">
+                    <div class="fs-tile-top">
+                        <i class="bi bi-qr-code fs-tile-icon"></i>
+                    </div>
+                    <div class="fs-tile-bottom">
+                        <div class="fs-tile-title">connect phone</div>
+                        <span class="fs-tile-badge">qr code</span>
+                    </div>
+                </div>
+            `;
+
+            // Download ZIP Tile (if inside a subfolder)
+            if (path) {
+                html += `
+                    <div class="fs-tile fs-action-tile-zip" 
+                         onclick="downloadCurrentFolder()"
+                         title="Download current folder as ZIP">
+                        <div class="fs-tile-top">
+                            <i class="bi bi-download fs-tile-icon"></i>
+                        </div>
+                        <div class="fs-tile-bottom">
+                            <div class="fs-tile-title">download zip</div>
+                            <span class="fs-tile-badge">archive</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (items && items.length > 0) {
+                // Sort: folders first, then files alphabetically
+                const sorted = items.sort((a, b) => {
+                    if (a.isDirectory && !b.isDirectory) return -1;
+                    if (!a.isDirectory && b.isDirectory) return 1;
+                    return a.name.localeCompare(b.name);
+                });
+
+                sorted.forEach(item => {
+                    const itemPath = path ? `${path}/${item.name}` : item.name;
+
+                    if (item.isDirectory) {
+                        html += `
+                            <div class="fs-tile fs-folder-tile"
+                                 onclick="openFolder('${item.name}')"
+                                 ondragover="handleFolderDragOver(event)"
+                                 ondragleave="handleFolderDragLeave(event)"
+                                 ondrop="handleFolderDrop(event, '${item.name}')"
+                                 draggable="true"
+                                 ondragstart="handleItemDragStart(event, '${itemPath}', '${item.name}', true)"
+                                 ondragend="handleItemDragEnd(event)">
+                                <div class="fs-tile-top">
+                                    <i class="bi bi-folder-fill fs-tile-icon"></i>
+                                    <div class="fs-tile-actions" onclick="event.stopPropagation()">
+                                        <button class="fs-action-btn" onclick="downloadFolder('${item.name}')" title="Download ZIP">
+                                            <i class="bi bi-download"></i>
+                                        </button>
+                                        <button class="fs-action-btn btn-del" onclick="deleteItem('${itemPath}', true)" title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="fs-tile-bottom">
+                                    <div class="fs-tile-title" title="${item.name}">${item.name}</div>
+                                    <span class="fs-tile-badge">folder</span>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        const theme = getFileTheme(item.name);
+                        html += `
+                            <div class="fs-tile ${theme.cls}"
+                                 draggable="true"
+                                 ondragstart="handleItemDragStart(event, '${itemPath}', '${item.name}', false)"
+                                 ondragend="handleItemDragEnd(event)">
+                                <div class="fs-tile-top">
+                                    <i class="bi ${theme.icon} fs-tile-icon"></i>
+                                    <div class="fs-tile-actions" onclick="event.stopPropagation()">
+                                        <a href="/download/${encodeURIComponent(itemPath)}" class="fs-action-btn" title="Download">
+                                            <i class="bi bi-download"></i>
+                                        </a>
+                                        <button class="fs-action-btn btn-del" onclick="deleteItem('${itemPath}', false)" title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="fs-tile-bottom" onclick="window.location.href='/download/${encodeURIComponent(itemPath)}'">
+                                    <div class="fs-tile-title" title="${item.name}">${item.name}</div>
+                                    <span class="fs-tile-badge">${theme.ext}</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+            }
+
+            fileList.innerHTML = html;
+        }
+
+        function openFolder(folderName) {
+            const newPath = currentPath ? `${currentPath}/${folderName}` : folderName;
+            pathHistory.push(newPath);
+            loadDirectory(newPath);
+        }
+
+        function navigateToPath(path) {
+            const pathIndex = pathHistory.indexOf(path);
+            if (pathIndex !== -1) {
+                pathHistory = pathHistory.slice(0, pathIndex + 1);
+            } else {
+                pathHistory = [''];
+            }
+            loadDirectory(path);
+        }
+
+        function updateTitle(path) {
+            const titleEl = document.getElementById('fs-title');
+            if (path) {
+                const parts = path.split('/');
+                const currentName = parts[parts.length - 1];
+                const parentPath = parts.slice(0, -1).join('/');
+                titleEl.innerHTML = `<a href="#" onclick="loadDirectory('${parentPath}')" title="Back">← ${currentName.toLowerCase()}</a>`;
+            } else {
+                titleEl.innerHTML = `<a href="#" onclick="loadDirectory('')">start</a>`;
+            }
+        }
+
+        function updateBreadcrumb(path) {
+            const breadcrumb = document.getElementById('breadcrumb');
+            let html = `
+                <a href="#" onclick="navigateToPath('')" ondragover="handleFolderDragOver(event)" ondragleave="handleFolderDragLeave(event)" ondrop="handleFolderDrop(event, '')">start</a>
+            `;
+            
+            if (path) {
+                const parts = path.split('/');
+                let accum = '';
+                parts.forEach((part, index) => {
+                    accum = accum ? `${accum}/${part}` : part;
+                    const isLast = (index === parts.length - 1);
+                    html += ` <span class="crumb-sep">></span> `;
+                    if (isLast) {
+                        html += `<span class="crumb-active" ondragover="handleFolderDragOver(event)" ondragleave="handleFolderDragLeave(event)" ondrop="handleFolderDrop(event, '${accum}')">${part}</span>`;
+                    } else {
+                        html += `<a href="#" onclick="navigateToPath('${accum}')" ondragover="handleFolderDragOver(event)" ondragleave="handleFolderDragLeave(event)" ondrop="handleFolderDrop(event, '${accum}')">${part}</a>`;
+                    }
+                });
+            }
+            breadcrumb.innerHTML = html;
+        }
+
+        function downloadCurrentFolder() {
+            if (currentPath) {
+                window.location.href = `/download-folder/${encodeURIComponent(currentPath)}`;
+            }
+        }
+
+        function downloadFolder(folderName) {
+            const folderPath = currentPath ? `${currentPath}/${folderName}` : folderName;
+            window.location.href = `/download-folder/${encodeURIComponent(folderPath)}`;
+        }
+
+        function deleteItem(target, isFolder) {
+            const itemType = isFolder ? 'folder' : 'file';
+            if (confirm(`Delete this ${itemType}?`)) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/delete';
+                
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'target';
+                input.value = target;
+                
+                form.appendChild(input);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        function showCreateFolderModal() {
+            const modal = new bootstrap.Modal(document.getElementById('createFolderModal'));
+            modal.show();
+            setTimeout(() => {
+                document.getElementById('folderName').focus();
+            }, 300);
+        }
+
+        function handleCreateFolder(event) {
+            event.preventDefault();
+            const form = event.target;
+            const input = form.querySelector('#folderName');
+            const nameVal = input.value.trim();
+            if (!nameVal) return;
+
+            const fullPath = currentPath ? `${currentPath}/${nameVal}` : nameVal;
+            const formData = new FormData();
+            formData.append('name', fullPath);
+            
+            fetch('/folder', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    loadDirectory(currentPath);
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('createFolderModal'));
+                    if (modal) modal.hide();
+                    form.reset();
+                } else {
+                    alert('Failed to create folder');
+                }
+            })
+            .catch(error => {
+                console.error('Error creating folder:', error);
+                alert('Failed to create folder');
+            });
+        }
+
+        function handleFileInputChange(event) {
+            const files = event.target.files;
+            if (files && files.length > 0) {
+                uploadFilesBatch(files, currentPath);
+            }
+            event.target.value = '';
+        }
+
+        function uploadFilesBatch(files, destFolder) {
+            let uploadPromises = [];
+            let count = files.length;
+            
+            for (let i = 0; i < count; i++) {
+                const file = files[i];
+                const formData = new FormData();
+                formData.append('folder', destFolder || '');
+                formData.append('file', file);
+                
+                uploadPromises.push(
+                    fetch(`/upload?folder=${encodeURIComponent(destFolder || '')}`, {
+                        method: 'POST',
+                        body: formData
+                    })
+                );
+            }
+
+            Promise.all(uploadPromises).then(() => {
+                loadDirectory(currentPath);
+            }).catch(err => {
+                console.error('Upload error:', err);
+                loadDirectory(currentPath);
+            });
+        }
+
+        function handleItemDragStart(event, itemPath, itemName, isDirectory) {
+            draggedItem = { path: itemPath, name: itemName, isDirectory: isDirectory };
+            event.dataTransfer.setData('text/plain', itemPath);
+            event.dataTransfer.effectAllowed = 'move';
+            event.currentTarget.classList.add('dragging');
+        }
+
+        function handleItemDragEnd(event) {
+            draggedItem = null;
+            event.currentTarget.classList.remove('dragging');
+            document.querySelectorAll('.drop-target-active').forEach(el => el.classList.remove('drop-target-active'));
+        }
+
+        function handleFolderDragOver(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.dataTransfer.dropEffect = 'move';
+            event.currentTarget.classList.add('drop-target-active');
+        }
+
+        function handleFolderDragLeave(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.currentTarget.classList.remove('drop-target-active');
+        }
+
+        function handleFolderDrop(event, targetFolderName) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.currentTarget.classList.remove('drop-target-active');
+
+            let destFolder = '';
+            if (targetFolderName === '') {
+                destFolder = '';
+            } else if (targetFolderName.includes('/')) {
+                destFolder = targetFolderName;
+            } else if (currentPath) {
+                destFolder = `${currentPath}/${targetFolderName}`;
+            } else {
+                destFolder = targetFolderName;
+            }
+
+            if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
+                uploadFilesBatch(event.dataTransfer.files, destFolder);
+                return;
+            }
+
+            const sourcePath = event.dataTransfer.getData('text/plain') || (draggedItem ? draggedItem.path : '');
+            if (!sourcePath) return;
+
+            if (draggedItem && (draggedItem.name === targetFolderName || sourcePath === destFolder)) {
+                return;
+            }
+
+            moveItem(sourcePath, destFolder);
+        }
+
+        function moveItem(sourcePath, destFolder) {
+            const formData = new URLSearchParams();
+            formData.append('source', sourcePath);
+            formData.append('destination', destFolder);
+
+            fetch('/move', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData.toString()
+            })
+            .then(async response => {
+                if (response.ok) {
+                    loadDirectory(currentPath);
+                } else {
+                    const err = await response.text();
+                    alert('Cannot move: ' + err);
+                }
+            })
+            .catch(err => {
+                console.error('Error moving item:', err);
+                alert('Failed to move item');
+            });
+        }
+
+        function showError(message) {
+            document.getElementById('file-list').innerHTML = `
+                <div class="fs-empty">
+                    <i class="bi bi-exclamation-triangle text-danger"></i>
+                    <h3 class="text-danger">error</h3>
+                    <p class="text-secondary">${message}</p>
+                    <button class="btn btn-fs-primary mt-3" onclick="loadDirectory(currentPath)">retry</button>
+                </div>
+            `;
+        }
+
+        function showQRModal() {
+            const modalEl = document.getElementById('qrModal');
+            const modal = new bootstrap.Modal(modalEl);
+            const qrImg = document.getElementById('qr-modal-img');
+            const qrLink = document.getElementById('qr-modal-link');
+
+            // Fetch network URL from /api/info
+            fetch('/api/info')
+                .then(res => res.json())
+                .then(info => {
+                    const target = info.networkUrl || window.location.origin;
+                    qrLink.textContent = target;
+                    qrLink.href = target;
+                    qrImg.src = '/api/qr?url=' + encodeURIComponent(target);
+                })
+                .catch(() => {
+                    const fallback = window.location.origin;
+                    qrLink.textContent = fallback;
+                    qrLink.href = fallback;
+                    qrImg.src = '/api/qr?url=' + encodeURIComponent(fallback);
+                });
+
+            modal.show();
+        }
+
+        function copyQRLink() {
+            const linkText = document.getElementById('qr-modal-link').textContent;
+            navigator.clipboard.writeText(linkText).then(() => {
+                const btn = document.getElementById('qr-copy-btn');
+                const orig = btn.textContent;
+                btn.textContent = 'copied!';
+                setTimeout(() => { btn.textContent = orig; }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

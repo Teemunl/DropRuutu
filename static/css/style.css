@@ -1,0 +1,501 @@
+/* ==========================================================================
+   Metro / Modern UI Start Screen (Windows Phone Style)
+   Authentic pitch-black background, vibrant solid color Live Tiles,
+   Segoe UI typography, and iconic circular App Bar.
+   ========================================================================== */
+
+:root {
+    --fs-bg: #000000;
+    --fs-blue: #0078d7;       /* Cobalt / Cyan */
+    --fs-cyan: #00a4ef;       /* Cyan */
+    --fs-magenta: #d80073;    /* Fuchsia / Magenta */
+    --fs-green: #107c10;      /* Xbox / Forest Green */
+    --fs-lime: #60a917;       /* Lime */
+    --fs-mango: #f09609;      /* Mango / Orange */
+    --fs-red: #e51400;        /* Crimson Red */
+    --fs-purple: #6a00ff;     /* Royal Purple */
+    --fs-teal: #00aba9;       /* Teal */
+    --fs-yellow: #e3c800;     /* Yellow */
+    --fs-text: #ffffff;
+    --fs-text-dim: #999999;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    border-radius: 0 !important; /* Authentic metro sharp geometry */
+}
+
+body, html {
+    font-family: 'Segoe UI', 'Segoe WP', system-ui, -apple-system, BlinkMacSystemFont, sans-serif !important;
+    background: var(--fs-bg) !important;
+    color: var(--fs-text) !important;
+    min-height: 100vh !important;
+    overflow-x: hidden;
+}
+
+/* ==========================================================================
+   Main Shell & Container
+   ========================================================================== */
+
+#fs-shell {
+    min-height: 100vh;
+    padding: 1.5rem 1.5rem 100px 1.5rem; /* bottom padding for App Bar */
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* ==========================================================================
+   metro Start Header
+   ========================================================================== */
+
+.fs-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #1a1a1a;
+}
+
+.fs-app-brand {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--fs-cyan);
+    text-transform: uppercase;
+    margin-bottom: 0.2rem;
+}
+
+.fs-header-main {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.fs-pivot-title {
+    font-size: 3.8rem;
+    font-weight: 200;
+    letter-spacing: -2px;
+    line-height: 1;
+    color: #ffffff;
+    text-transform: lowercase;
+    margin: 0;
+}
+
+.fs-pivot-title a {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.fs-path-crumb {
+    font-size: 1.15rem;
+    font-weight: 300;
+    color: var(--fs-text-dim);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 0.75rem;
+}
+
+.fs-path-crumb a {
+    color: var(--fs-cyan);
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.fs-path-crumb a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+.fs-path-crumb .crumb-sep {
+    color: #444444;
+}
+
+.fs-path-crumb .crumb-active {
+    color: #ffffff;
+    font-weight: 400;
+}
+
+/* ==========================================================================
+   metro Live Tiles Grid
+   ========================================================================== */
+
+.fs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+/* Base metro Tile */
+.fs-tile {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    min-height: 175px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: #ffffff;
+    cursor: pointer;
+    user-select: none;
+    overflow: hidden;
+    transition: outline 0.15s ease, filter 0.15s ease;
+}
+
+/* Tile Layout */
+.fs-tile-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.fs-tile-icon {
+    font-size: 2.8rem;
+    line-height: 1;
+    color: #ffffff;
+}
+
+.fs-tile-actions {
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.fs-tile:hover .fs-tile-actions {
+    opacity: 1;
+}
+
+@media (hover: none) {
+    .fs-tile-actions {
+        opacity: 0.9;
+    }
+}
+
+.fs-action-btn {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: #ffffff;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.fs-action-btn:hover {
+    background: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
+}
+
+.fs-action-btn.btn-del:hover {
+    background: var(--fs-red);
+    color: #ffffff;
+    border-color: var(--fs-red);
+}
+
+.fs-tile-bottom {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.fs-tile-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.2;
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    text-transform: lowercase;
+}
+
+.fs-tile-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.85;
+    white-space: nowrap;
+    margin-left: 6px;
+}
+
+/* ==========================================================================
+   metro Tile Themes (Vibrant Solid Color Blocks)
+   ========================================================================== */
+
+/* Folder Tile: Iconic Nokia Cyan / Windows Phone Blue */
+.fs-folder-tile {
+    background: var(--fs-cyan);
+}
+.fs-folder-tile:hover {
+    filter: brightness(1.08);
+}
+
+/* Action Tiles */
+.fs-action-tile-upload {
+    background: var(--fs-blue);
+}
+.fs-action-tile-folder {
+    background: var(--fs-green);
+}
+.fs-action-tile-zip {
+    background: var(--fs-purple);
+}
+.fs-action-tile-qr {
+    background: var(--fs-mango);
+}
+
+/* File Tile Solid Colors by Type */
+.fs-file-image {
+    background: var(--fs-mango);    /* Warm Mango Orange */
+}
+.fs-file-video {
+    background: var(--fs-red);      /* Crimson Red */
+}
+.fs-file-audio {
+    background: var(--fs-magenta);  /* Magenta */
+}
+.fs-file-code {
+    background: var(--fs-teal);     /* Nokia Teal */
+}
+.fs-file-doc {
+    background: var(--fs-blue);     /* Cobalt Blue */
+}
+.fs-file-pdf {
+    background: #b91d47;               /* Adobe / Win8 Red */
+}
+.fs-file-archive {
+    background: var(--fs-purple);   /* Royal Purple */
+}
+.fs-file-generic {
+    background: #2d2d30;               /* Slate Dark with accent border */
+    border-bottom: 6px solid var(--fs-cyan);
+}
+
+/* Wide Tile (Spans 2 columns on wide screens) */
+@media (min-width: 600px) {
+    .fs-tile-wide {
+        grid-column: span 2;
+        aspect-ratio: 2 / 1;
+    }
+}
+
+/* ==========================================================================
+   metro Drag & Drop State
+   ========================================================================== */
+
+.fs-tile.dragging {
+    opacity: 0.35 !important;
+    transform: scale(0.92) !important;
+}
+
+.fs-folder-tile.drop-target-active {
+    outline: 5px solid #ffffff !important;
+    background: var(--fs-lime) !important;
+    transform: scale(1.05) !important;
+    z-index: 10;
+}
+
+/* ==========================================================================
+   Windows Phone Application Bar (Docked Bottom Bar)
+   ========================================================================== */
+
+.fs-appbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 72px;
+    background: #111111;
+    border-top: 2px solid #222222;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+    box-shadow: 0 -6px 30px rgba(0, 0, 0, 0.95);
+}
+
+.fs-appbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 36px;
+    width: 100%;
+    max-width: 650px;
+}
+
+.fs-appbar-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.1s ease;
+}
+
+.fs-appbar-btn:active {
+    transform: scale(0.92);
+}
+
+.fs-appbar-circle {
+    width: 42px;
+    height: 42px;
+    border-radius: 50% !important; /* The only round element in Metro */
+    border: 2px solid #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    color: #ffffff;
+    transition: all 0.15s ease;
+}
+
+.fs-appbar-btn:hover .fs-appbar-circle {
+    background: #ffffff;
+    color: #000000;
+}
+
+.fs-appbar-label {
+    font-size: 0.65rem;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+    text-transform: lowercase;
+    color: #aaaaaa;
+}
+
+/* ==========================================================================
+   Metro Modal Dialog
+   ========================================================================== */
+
+.modal-content {
+    background: #111111 !important;
+    border: 3px solid var(--fs-cyan) !important;
+    color: #ffffff !important;
+}
+
+.modal-header {
+    border-bottom: 1px solid #222222 !important;
+    padding: 1.5rem !important;
+}
+
+.modal-title {
+    font-size: 1.8rem !important;
+    font-weight: 200 !important;
+    text-transform: lowercase !important;
+}
+
+.modal-footer {
+    border-top: 1px solid #222222 !important;
+    padding: 1.25rem !important;
+}
+
+.form-control {
+    background: #1c1c1c !important;
+    border: 2px solid #444444 !important;
+    color: #ffffff !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 1.1rem !important;
+}
+
+.form-control:focus {
+    background: #252525 !important;
+    border-color: var(--fs-cyan) !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
+}
+
+.btn-fs-primary {
+    background: var(--fs-cyan) !important;
+    border: 2px solid var(--fs-cyan) !important;
+    color: #ffffff !important;
+    padding: 0.6rem 1.75rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    font-size: 0.85rem !important;
+    letter-spacing: 1px !important;
+}
+
+.btn-fs-primary:hover {
+    filter: brightness(1.15);
+}
+
+.btn-fs-secondary {
+    background: transparent !important;
+    border: 2px solid #555555 !important;
+    color: #ffffff !important;
+    padding: 0.6rem 1.75rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    font-size: 0.85rem !important;
+    letter-spacing: 1px !important;
+}
+
+.btn-fs-secondary:hover {
+    border-color: #ffffff !important;
+}
+
+/* Empty State */
+.fs-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 5rem 1rem;
+    color: var(--fs-text-dim);
+}
+
+.fs-empty i {
+    font-size: 4.5rem;
+    color: #333333;
+    margin-bottom: 1rem;
+}
+
+.fs-empty h3 {
+    font-size: 2.2rem;
+    font-weight: 200;
+    color: #ffffff;
+    text-transform: lowercase;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 576px) {
+    #fs-shell {
+        padding: 1rem 1rem 90px 1rem;
+    }
+    .fs-pivot-title {
+        font-size: 2.8rem;
+    }
+    .fs-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    .fs-tile {
+        min-height: 140px;
+        padding: 12px;
+    }
+    .fs-tile-icon {
+        font-size: 2.2rem;
+    }
+    .fs-tile-title {
+        font-size: 1rem;
+    }
+    .fs-appbar-inner {
+        gap: 16px;
+    }
+}

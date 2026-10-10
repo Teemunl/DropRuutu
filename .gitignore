@@ -1,0 +1,26 @@
+# Compiled binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+file-server-go
+dropruutu
+DropRuutu
+
+# Windows icons and compiled resource objects (generated from Dropruutu.svg)
+*.ico
+Dropruutu.png
+*.syso
+
+# Test binary
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Uploads directory
+uploads/
+
+# Environment files
+.env
