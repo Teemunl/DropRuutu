@@ -5,12 +5,12 @@ DropRuutu is a Go web file server for uploading, browsing, moving, and downloadi
 ## Build and run
 
 Requires Go 1.22 or newer.
-##Windows
+## Windows
 ```Windows
 go build -o DropRuutu.exe .
 .\DropRuutu.exe
 ```
-##Linux
+## Linux
 ```Linux
 go build -o dropruutu .
 ./dropruutu
