@@ -2,6 +2,7 @@
 
 <p align="center">
   <img src="images/dropruutu.png" alt="DropRuutu logo" width="160">
+  <img src="images/screenshot.png" alt="DropRuutu file manager screenshot" width="560">
 </p>
 
 DropRuutu is a Go web file server for uploading, browsing, moving, and downloading files from a browser. Its web interface and assets are embedded in the executable.
