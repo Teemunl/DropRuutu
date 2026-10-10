@@ -62,3 +62,7 @@ $env:UPLOAD_DIR = "D:\SharedFiles"
 ```powershell
 go test ./...
 ```
+
+<p align="center">
+  <img src="images/dropruutu.png" alt="DropRuutu logo" width="160">
+</p>
