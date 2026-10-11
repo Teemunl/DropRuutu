@@ -410,6 +410,79 @@ body, html {
         gap: 16px;
     }
 }
+
+/* Metro Upload Progress HUD */
+.fs-upload-overlay {
+    position: fixed;
+    bottom: 84px;
+    right: 24px;
+    width: 380px;
+    max-width: calc(100vw - 48px);
+    background: #0a0a0a;
+    border: 2px solid var(--fs-cyan);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85);
+    z-index: 1050;
+    padding: 16px 20px;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    color: #ffffff;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+.fs-upload-overlay.active {
+    display: flex;
+}
+.fs-upload-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.fs-upload-title {
+    font-size: 1.1rem;
+    font-weight: 300;
+    text-transform: lowercase;
+    color: var(--fs-cyan);
+    letter-spacing: 0.5px;
+}
+.fs-upload-file-name {
+    font-size: 0.9rem;
+    color: #dddddd;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.fs-upload-bar-track {
+    width: 100%;
+    height: 8px;
+    background: #222222;
+    overflow: hidden;
+}
+.fs-upload-bar-fill {
+    width: 0%;
+    height: 100%;
+    background: var(--fs-cyan);
+    transition: width 0.15s ease-out;
+}
+.fs-upload-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: #888888;
+    letter-spacing: 0.5px;
+}
+.fs-upload-percent {
+    font-size: 1.3rem;
+    font-weight: 200;
+    color: #ffffff;
+}
+@media (max-width: 576px) {
+    .fs-upload-overlay {
+        right: 12px;
+        left: 12px;
+        width: auto;
+        bottom: 80px;
+    }
+}
     </style>
 </head>
 <body>
@@ -448,6 +521,22 @@ body, html {
         <!-- metro Live Tiles Grid -->
         <div id="file-list" class="fs-grid">
             <!-- Loaded dynamically -->
+        </div>
+    </div>
+
+    <!-- Metro Live Upload Progress HUD -->
+    <div id="upload-overlay" class="fs-upload-overlay" aria-live="polite">
+        <div class="fs-upload-header">
+            <span class="fs-upload-title" id="upload-hud-title">uploading...</span>
+            <span class="fs-upload-percent" id="upload-hud-percent">0%</span>
+        </div>
+        <div class="fs-upload-file-name" id="upload-hud-filename">file.zip</div>
+        <div class="fs-upload-bar-track">
+            <div class="fs-upload-bar-fill" id="upload-hud-bar"></div>
+        </div>
+        <div class="fs-upload-stats">
+            <span id="upload-hud-transferred">0 MB / 0 MB</span>
+            <span id="upload-hud-speed">0 MB/s</span>
         </div>
     </div>
 
@@ -882,30 +971,109 @@ body, html {
             event.target.value = '';
         }
 
-        function uploadFilesBatch(files, destFolder) {
-            let uploadPromises = [];
-            let count = files.length;
-            
-            for (let i = 0; i < count; i++) {
-                const file = files[i];
-                const formData = new FormData();
-                formData.append('folder', destFolder || '');
-                formData.append('file', file);
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        async function uploadFilesBatch(files, destFolder) {
+            const overlay = document.getElementById('upload-overlay');
+            const titleEl = document.getElementById('upload-hud-title');
+            const percentEl = document.getElementById('upload-hud-percent');
+            const filenameEl = document.getElementById('upload-hud-filename');
+            const barEl = document.getElementById('upload-hud-bar');
+            const transferredEl = document.getElementById('upload-hud-transferred');
+            const speedEl = document.getElementById('upload-hud-speed');
+
+            const totalFiles = files.length;
+            overlay.classList.add('active');
+
+            for (let idx = 0; idx < totalFiles; idx++) {
+                const file = files[idx];
+                const fileLabel = totalFiles > 1 ? `[${idx + 1}/${totalFiles}] ${file.name}` : file.name;
                 
-                uploadPromises.push(
-                    fetch(`/upload?folder=${encodeURIComponent(destFolder || '')}`, {
-                        method: 'POST',
-                        body: formData
-                    })
-                );
+                titleEl.textContent = 'uploading...';
+                filenameEl.textContent = fileLabel;
+                percentEl.textContent = '0%';
+                barEl.style.width = '0%';
+                transferredEl.textContent = `0 B / ${formatBytes(file.size)}`;
+                speedEl.textContent = '0 MB/s';
+
+                try {
+                    await new Promise((resolve, reject) => {
+                        const xhr = new XMLHttpRequest();
+                        const startTime = Date.now();
+                        let lastLoaded = 0;
+                        let lastTime = startTime;
+
+                        xhr.upload.onprogress = (e) => {
+                            if (e.lengthComputable) {
+                                const percent = Math.min(100, Math.round((e.loaded / e.total) * 100));
+                                percentEl.textContent = `${percent}%`;
+                                barEl.style.width = `${percent}%`;
+                                transferredEl.textContent = `${formatBytes(e.loaded)} / ${formatBytes(e.total)}`;
+
+                                const now = Date.now();
+                                const elapsedChunk = (now - lastTime) / 1000;
+                                if (elapsedChunk >= 0.5) {
+                                    const bytesDiff = e.loaded - lastLoaded;
+                                    const speed = bytesDiff / elapsedChunk;
+                                    speedEl.textContent = `${formatBytes(speed)}/s`;
+                                    lastLoaded = e.loaded;
+                                    lastTime = now;
+                                }
+                            }
+                        };
+
+                        xhr.onload = () => {
+                            if (xhr.status >= 200 && xhr.status < 300) {
+                                percentEl.textContent = '100%';
+                                barEl.style.width = '100%';
+                                transferredEl.textContent = `${formatBytes(file.size)} / ${formatBytes(file.size)}`;
+                                resolve();
+                            } else {
+                                reject(new Error(xhr.responseText || `HTTP ${xhr.status}`));
+                            }
+                        };
+
+                        xhr.onerror = () => reject(new Error('Network connection failed or connection closed'));
+                        xhr.onabort = () => reject(new Error('Upload aborted'));
+
+                        const formData = new FormData();
+                        formData.append('folder', destFolder || '');
+                        formData.append('file', file);
+
+                        xhr.open('POST', `/upload?folder=${encodeURIComponent(destFolder || '')}`);
+                        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                        xhr.send(formData);
+                    });
+                } catch (err) {
+                    console.error('Upload error for ' + file.name + ':', err);
+                    titleEl.textContent = 'upload failed';
+                    titleEl.style.color = '#ff4136';
+                    filenameEl.textContent = `${file.name}: ${err.message}`;
+                    setTimeout(() => {
+                        overlay.classList.remove('active');
+                        titleEl.style.color = '';
+                    }, 4000);
+                    loadDirectory(currentPath);
+                    return;
+                }
             }
 
-            Promise.all(uploadPromises).then(() => {
-                loadDirectory(currentPath);
-            }).catch(err => {
-                console.error('Upload error:', err);
-                loadDirectory(currentPath);
-            });
+            // All files completed
+            titleEl.textContent = 'completed';
+            percentEl.textContent = '100%';
+            barEl.style.width = '100%';
+            speedEl.textContent = 'done';
+            setTimeout(() => {
+                overlay.classList.remove('active');
+            }, 1800);
+
+            loadDirectory(currentPath);
         }
 
         function handleItemDragStart(event, itemPath, itemName, isDirectory) {

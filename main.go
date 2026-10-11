@@ -2,6 +2,7 @@ package main
 
 import (
 	"archive/zip"
+	"bytes"
 	_ "embed"
 	"encoding/json"
 	"errors"
@@ -170,11 +171,10 @@ func main() {
 	}
 
 	server := &http.Server{
-		Addr:         addr,
-		Handler:      mux,
-		ReadTimeout:  10 * time.Minute, // Allow large file uploads
-		WriteTimeout: 10 * time.Minute, // Allow large streaming downloads / zips
-		IdleTimeout:  2 * time.Minute,
+		Addr:              addr,
+		Handler:           mux,
+		ReadHeaderTimeout: 30 * time.Second, // Protect against slowloris attacks while allowing unbounded file transfer time
+		IdleTimeout:       2 * time.Minute,
 	}
 
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -351,23 +351,9 @@ func handleCreateFolder(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-// handleUpload handles file uploads, supporting multiple files and subfolder destinations
+// handleUpload handles file uploads with real-time direct streaming (constant memory & zero temp disk buffering)
 func handleUpload(w http.ResponseWriter, r *http.Request) {
-	// Parse multipart form (max 32MB kept in RAM, remainder buffered to temporary disk files)
-	if err := r.ParseMultipartForm(32 << 20); err != nil {
-		http.Error(w, fmt.Sprintf("Error parsing upload: %v", err), http.StatusBadRequest)
-		return
-	}
-	defer func() {
-		if r.MultipartForm != nil {
-			r.MultipartForm.RemoveAll()
-		}
-	}()
-
-	targetFolder := strings.TrimSpace(r.FormValue("folder"))
-	if targetFolder == "" {
-		targetFolder = strings.TrimSpace(r.URL.Query().Get("folder"))
-	}
+	targetFolder := strings.TrimSpace(r.URL.Query().Get("folder"))
 
 	destFolder, err := resolveSafe(targetFolder)
 	if err != nil {
@@ -381,46 +367,148 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if r.MultipartForm == nil || len(r.MultipartForm.File["file"]) == 0 {
-		http.Error(w, "No files uploaded", http.StatusBadRequest)
-		return
-	}
+	mr, err := r.MultipartReader()
+	if err != nil {
+		// Fallback to standard multipart form if not readable as a multipart stream
+		if parseErr := r.ParseMultipartForm(32 << 20); parseErr != nil {
+			http.Error(w, fmt.Sprintf("Error parsing upload: %v", parseErr), http.StatusBadRequest)
+			return
+		}
+		defer func() {
+			if r.MultipartForm != nil {
+				r.MultipartForm.RemoveAll()
+			}
+		}()
 
-	files := r.MultipartForm.File["file"]
-	for _, fileHeader := range files {
-		fileName := filepath.Base(fileHeader.Filename)
-		if fileName == "." || fileName == "/" || fileName == "\\" || fileName == "" {
-			continue
+		if targetFolder == "" {
+			targetFolder = strings.TrimSpace(r.FormValue("folder"))
+			destFolder, _ = resolveSafe(targetFolder)
 		}
 
-		src, err := fileHeader.Open()
-		if err != nil {
-			http.Error(w, fmt.Sprintf("Failed to read uploaded file: %v", err), http.StatusInternalServerError)
+		files := r.MultipartForm.File["file"]
+		if len(files) == 0 {
+			http.Error(w, "No files uploaded", http.StatusBadRequest)
 			return
 		}
 
-		destPath := filepath.Join(destFolder, fileName)
-		dst, err := os.Create(destPath)
-		if err != nil {
+		for _, fileHeader := range files {
+			fileName := filepath.Base(fileHeader.Filename)
+			if fileName == "." || fileName == "/" || fileName == "\\" || fileName == "" {
+				continue
+			}
+
+			src, openErr := fileHeader.Open()
+			if openErr != nil {
+				http.Error(w, fmt.Sprintf("Failed to read uploaded file: %v", openErr), http.StatusInternalServerError)
+				return
+			}
+
+			destPath := filepath.Join(destFolder, fileName)
+			dst, createErr := os.Create(destPath)
+			if createErr != nil {
+				src.Close()
+				http.Error(w, fmt.Sprintf("Failed to create destination file: %v", createErr), http.StatusInternalServerError)
+				return
+			}
+
+			buf := make([]byte, 1024*1024) // 1MB buffer for fast high-throughput disk I/O
+			_, copyErr := io.CopyBuffer(dst, src, buf)
 			src.Close()
-			http.Error(w, fmt.Sprintf("Failed to create destination file: %v", err), http.StatusInternalServerError)
-			return
+			dst.Close()
+
+			if copyErr != nil {
+				os.Remove(destPath)
+				http.Error(w, fmt.Sprintf("Error saving file %s: %v", fileName, copyErr), http.StatusInternalServerError)
+				return
+			}
+		}
+	} else {
+		// Direct streaming parser via MultipartReader
+		buf := make([]byte, 1024*1024) // 1MB buffer
+		uploadedCount := 0
+		var writtenFiles []string
+		initialDestFolder := destFolder
+
+		for {
+			part, nextErr := mr.NextPart()
+			if nextErr == io.EOF {
+				break
+			}
+			if nextErr != nil {
+				http.Error(w, fmt.Sprintf("Error reading upload stream: %v", nextErr), http.StatusBadRequest)
+				return
+			}
+
+			formName := part.FormName()
+			fileName := part.FileName()
+
+			if formName == "folder" && fileName == "" {
+				// Destination folder passed as form field
+				var valBuf bytes.Buffer
+				io.Copy(&valBuf, part)
+				partFolder := strings.TrimSpace(valBuf.String())
+				if targetFolder == "" && partFolder != "" {
+					targetFolder = partFolder
+					if df, safeErr := resolveSafe(targetFolder); safeErr == nil {
+						destFolder = df
+						os.MkdirAll(destFolder, 0755)
+
+						// If files were written before this folder field arrived, relocate them
+						if destFolder != initialDestFolder && len(writtenFiles) > 0 {
+							for _, oldPath := range writtenFiles {
+								base := filepath.Base(oldPath)
+								newPath := filepath.Join(destFolder, base)
+								os.Rename(oldPath, newPath)
+							}
+						}
+					}
+				}
+				continue
+			}
+
+			if fileName == "" {
+				// Skip non-file form fields
+				io.Copy(io.Discard, part)
+				continue
+			}
+
+			fileName = filepath.Base(fileName)
+			if fileName == "." || fileName == "/" || fileName == "\\" || fileName == "" {
+				io.Copy(io.Discard, part)
+				continue
+			}
+
+			destPath := filepath.Join(destFolder, fileName)
+			dst, createErr := os.Create(destPath)
+			if createErr != nil {
+				part.Close()
+				http.Error(w, fmt.Sprintf("Failed to create destination file: %v", createErr), http.StatusInternalServerError)
+				return
+			}
+
+			_, copyErr := io.CopyBuffer(dst, part, buf)
+			dst.Close()
+			part.Close()
+
+			if copyErr != nil {
+				os.Remove(destPath)
+				http.Error(w, fmt.Sprintf("Error saving file %s: %v", fileName, copyErr), http.StatusInternalServerError)
+				return
+			}
+			writtenFiles = append(writtenFiles, destPath)
+			uploadedCount++
 		}
 
-		buf := make([]byte, 64*1024)
-		_, copyErr := io.CopyBuffer(dst, src, buf)
-		src.Close()
-		dst.Close()
-
-		if copyErr != nil {
-			os.Remove(destPath)
-			http.Error(w, fmt.Sprintf("Error saving file %s: %v", fileName, copyErr), http.StatusInternalServerError)
+		if uploadedCount == 0 {
+			http.Error(w, "No files uploaded", http.StatusBadRequest)
 			return
 		}
 	}
 
 	if r.Header.Get("X-Requested-With") == "XMLHttpRequest" || strings.Contains(r.Header.Get("Accept"), "application/json") {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"success":true}`))
 		return
 	}
 
