@@ -487,10 +487,32 @@ body, html {
     text-overflow: ellipsis;
     flex: 1;
 }
+.fs-upload-item-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
 .fs-upload-item-percent {
     font-size: 0.9rem;
     font-weight: 300;
     color: var(--fs-cyan);
+}
+.fs-upload-cancel-btn {
+    background: transparent;
+    border: none;
+    color: #777777;
+    padding: 0 4px;
+    font-size: 0.9rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+.fs-upload-cancel-btn:hover {
+    color: #ff4136;
+}
+.fs-upload-item.done .fs-upload-cancel-btn,
+.fs-upload-item.failed .fs-upload-cancel-btn {
+    display: none;
 }
 .fs-upload-item.done .fs-upload-item-percent {
     color: #2ecc40;
@@ -1042,7 +1064,12 @@ body, html {
                 itemEl.innerHTML = `
                     <div class="fs-upload-item-header">
                         <span class="fs-upload-item-name" title="${file.name}">${file.name}</span>
-                        <span class="fs-upload-item-percent" id="${uploadId}-percent">0%</span>
+                        <div class="fs-upload-item-right">
+                            <span class="fs-upload-item-percent" id="${uploadId}-percent">0%</span>
+                            <button type="button" class="fs-upload-cancel-btn" id="${uploadId}-cancel" title="Cancel upload">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="fs-upload-bar-track">
                         <div class="fs-upload-bar-fill" id="${uploadId}-bar"></div>
@@ -1058,8 +1085,17 @@ body, html {
                 const barEl = itemEl.querySelector(`#${uploadId}-bar`);
                 const transferredEl = itemEl.querySelector(`#${uploadId}-transferred`);
                 const speedEl = itemEl.querySelector(`#${uploadId}-speed`);
+                const cancelBtn = itemEl.querySelector(`#${uploadId}-cancel`);
 
                 const xhr = new XMLHttpRequest();
+                let isCancelled = false;
+
+                cancelBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    isCancelled = true;
+                    xhr.abort();
+                };
+
                 const startTime = Date.now();
                 let lastLoaded = 0;
                 let lastTime = startTime;
@@ -1094,11 +1130,11 @@ body, html {
                         speedEl.textContent = 'completed';
                     } else {
                         itemEl.classList.add('failed');
-                        percentEl.textContent = 'failed';
-                        speedEl.textContent = errMsg || 'error';
+                        percentEl.textContent = isCancelled ? 'cancelled' : 'failed';
+                        speedEl.textContent = isCancelled ? 'aborted by user' : (errMsg || 'error');
                     }
 
-                    // Keep finished item visible for 4 seconds, then fade out
+                    // Keep finished item visible for 3 seconds, then fade out
                     setTimeout(() => {
                         itemEl.style.transition = 'opacity 0.4s ease, max-height 0.4s ease';
                         itemEl.style.opacity = '0';
@@ -1108,7 +1144,7 @@ body, html {
                                 overlay.classList.remove('active');
                             }
                         }, 400);
-                    }, 4000);
+                    }, 3000);
 
                     // Refresh directory listing
                     loadDirectory(currentPath);
